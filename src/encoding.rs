@@ -1,6 +1,5 @@
 #![allow(unused)]
 
-use core::ascii;
 const BASE64_ALPHABET: &[u8; 64] =
     b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 const HEX_CHARS: &[u8; 16] = b"0123456789abcdef";
