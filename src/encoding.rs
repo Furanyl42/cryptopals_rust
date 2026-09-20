@@ -45,18 +45,6 @@ pub fn bits_to_u8(bits: &[u8]) -> u8 {
     bits.iter().fold(0, |acc, &bit| (acc << 1) | bit)
 }
 
-/// Calculates result of XOR combination between 2 vectors of raw bytes
-pub fn fixed_xor(b1: &[u8], b2: &[u8]) -> Result<Vec<u8>, &'static str> {
-    if b1.len() != b2.len() {
-        return Err("Buffer lengths must match");
-    }
-    /*for ((&a, &b), target) in b1.iter().zip(b2).zip(out.iter_mut()) {
-        *target = a ^ b;
-    }
-    Ok(())*/
-    Ok(b1.iter().zip(b2.iter()).map(|(a, b)| a ^ b).collect())
-}
-
 /// Encodes vector of raw bytes to hex string
 pub fn bytes_to_hex(bytes: &[u8]) -> String {
     let mut hex = String::with_capacity(bytes.len() * 2);

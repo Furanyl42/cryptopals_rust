@@ -1,5 +1,7 @@
 // src/xor.rs
 
+#![allow(dead_code)]
+
 use crate::scoring::*;
 use std::fmt;
 
@@ -27,6 +29,18 @@ impl fmt::Display for Cracked {
     }
 }
 
+/// Calculates result of XOR operation between 2 vectors of raw bytes (same length)
+pub fn fixed_xor(b1: &[u8], b2: &[u8]) -> Result<Vec<u8>, &'static str> {
+    if b1.len() != b2.len() {
+        return Err("Buffer lengths must match");
+    }
+    /*for ((&a, &b), target) in b1.iter().zip(b2).zip(out.iter_mut()) {
+        *target = a ^ b;
+    }
+    Ok(())*/
+    Ok(b1.iter().zip(b2.iter()).map(|(a, b)| a ^ b).collect())
+}
+
 /// Decrypts input message (single-byte XOR'ed)  and finds key based on character frequency using Bhattacharyya coefficient
 pub fn single_byte_crack(input_bytes: &[u8]) -> Cracked {
     let mut best = Cracked::default();
@@ -48,4 +62,19 @@ pub fn single_byte_crack(input_bytes: &[u8]) -> Cracked {
         }
     }
     best
+}
+
+/// Calculates result of XOR operation on input by repeating key
+pub fn repeating_key_xor(input: &[u8], key: &[u8]) -> Vec<u8> {
+    /*let mut target = vec![0u8; input.len()];
+    let key_len = key.len();
+    for (i, &b) in input.iter().enumerate() {
+        target[i] = b ^ key[i % key_len];
+    }
+    target*/
+    input
+        .iter()
+        .zip(key.iter().cycle())
+        .map(|(&a, &b)| a ^ b)
+        .collect()
 }

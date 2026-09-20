@@ -51,7 +51,7 @@ mod tests {
     #[test]
     fn test_challenge_4_detect_single_character_xor() {
         let expected = "Now that the party is jumping\n";
-        let file = "/home/nico/cryptopals/4.txt";
+        let file = "tests/4.txt";
         let encrypted_lines = read_file_lines(file);
         let mut cracked_best = Cracked::default();
         for line in encrypted_lines {
@@ -65,5 +65,16 @@ mod tests {
         let result = String::from_utf8_lossy(&cracked_best.message);
 
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_challenge_5_implement_repeating_key_xor() {
+        let expected = "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272
+a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f";
+        let message = include_str!("5.txt");
+        let result = repeating_key_xor(message.as_bytes(), b"ICE");
+
+        let plaintext = bytes_to_hex(&result);
+        assert_eq!(plaintext, expected);
     }
 }
