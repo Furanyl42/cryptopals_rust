@@ -1,0 +1,69 @@
+// tests/set1.rs
+
+use cryptopals::encoding::*;
+use cryptopals::utils::*;
+use cryptopals::xor::*;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_challenge_1_convert_hex_to_base64() {
+        let input_hex = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d";
+        let expected = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t";
+
+        let result = hex_to_base64(input_hex).expect("Hex decoding failed");
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_challenge_2_fixed_xor() {
+        let input1_hex = "1c0111001f010100061a024b53535009181c";
+        let input2_hex = "686974207468652062756c6c277320657965";
+        let expected = "746865206b696420646f6e277420706c6179";
+
+        let result = {
+            let b1 = hex_to_bytes(input1_hex).expect("Hex decoding failed");
+            let b2 = hex_to_bytes(input2_hex).expect("Hex decoding failed");
+
+            //let mut out = vec![0u8; b1.len()];
+            //fixed_xor(&b1, &b2, &mut out).expect("XOR failed");
+            bytes_to_hex(&fixed_xor(&b1, &b2).unwrap())
+        };
+        assert_eq!(result, expected);
+    }
+    #[test]
+    fn test_challenge_3_single_byte_xor_cipher() {
+        let input_hex = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
+        let input_bytes = hex_to_bytes(input_hex).expect("Hex decoding failed");
+        let result = single_byte_crack(&input_bytes);
+        let plaintext = bytes_to_ascii(&result.message);
+
+        println!("Clef: {:?}", result.key);
+        println!("Nessage: {}", plaintext);
+        println!("Score: {}", result.coef);
+
+        assert_eq!(result.key, vec![b'X']);
+        assert_eq!(plaintext, "Cooking MC's like a pound of bacon");
+    }
+
+    #[test]
+    fn test_challenge_4_detect_single_character_xor() {
+        let expected = "Now that the party is jumping\n";
+        let file = "/home/nico/cryptopals/4.txt";
+        let encrypted_lines = read_file_lines(file);
+        let mut cracked_best = Cracked::default();
+        for line in encrypted_lines {
+            let current_cracked = single_byte_crack(&line);
+            if current_cracked.coef > cracked_best.coef {
+                cracked_best.coef = current_cracked.coef;
+                cracked_best.message = current_cracked.message;
+                cracked_best.key = current_cracked.key;
+            }
+        }
+        let result = String::from_utf8_lossy(&cracked_best.message);
+
+        assert_eq!(result, expected);
+    }
+}
