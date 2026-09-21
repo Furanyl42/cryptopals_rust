@@ -44,11 +44,12 @@ pub fn fixed_xor(b1: &[u8], b2: &[u8]) -> Result<Vec<u8>, &'static str> {
 /// Decrypts input message (single-byte XOR'ed)  and finds key based on character frequency using Bhattacharyya coefficient
 pub fn single_byte_crack(input_bytes: &[u8]) -> Cracked {
     let mut best = Cracked::default();
-    let mut temp_buffer = vec![0u8; input_bytes.len()];
+    //let mut temp_buffer = vec![0u8; input_bytes.len()];
     for key in 0..=255u8 {
-        for (i, &b) in input_bytes.iter().enumerate() {
+        /*for (i, &b) in input_bytes.iter().enumerate() {
             temp_buffer[i] = b ^ key;
-        }
+        }*/
+        let temp_buffer: Vec<u8> = input_bytes.iter().map(|&b| b ^ key).collect();
         if !is_valid_text(&temp_buffer) {
             continue;
         }
