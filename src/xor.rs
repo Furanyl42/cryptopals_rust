@@ -49,20 +49,46 @@ pub fn single_byte_crack(input_bytes: &[u8]) -> Cracked {
         /*for (i, &b) in input_bytes.iter().enumerate() {
             temp_buffer[i] = b ^ key;
         }*/
-        let temp_buffer: Vec<u8> = input_bytes.iter().map(|&b| b ^ key).collect();
-        if !is_valid_text(&temp_buffer) {
+        let xored_iter = input_bytes.iter().map(|&b| b ^ key);
+        //let temp_buffer: Vec<u8> = input_bytes.iter().map(|&b| b ^ key).collect();
+        if !is_valid_text(xored_iter.clone()) {
             continue;
         }
-        let freq = calc_freq(&temp_buffer);
+        let freq = calc_freq(xored_iter);
         let coef = bhattacharyya_coef(&freq, &ENGLISH_FREQ_27);
 
         if coef > best.coef {
             best.coef = coef;
             best.key = vec![key];
-            best.message = temp_buffer.clone();
+            best.message = input_bytes.iter().map(|&b| b ^ key).collect();
         }
     }
     best
+}
+
+pub fn find_best_single_byte_key<I>(input_bytes: I) -> (u8, f64)
+where
+    I: Iterator<Item = u8> + Clone,
+{
+    let mut best_key = 0u8;
+    let mut best_coef = -1.0;
+
+    for key in 0..=255u8 {
+        let xored_iter = input_bytes.clone().map(|b| b ^ key);
+
+        if !is_valid_text(xored_iter.clone()) {
+            continue;
+        }
+
+        let freq = calc_freq(xored_iter);
+        let coef = bhattacharyya_coef(&freq, &ENGLISH_FREQ_27);
+        if coef > best_coef {
+            best_coef = coef;
+            best_key = key;
+        }
+    }
+
+    (best_key, best_coef)
 }
 
 /// Calculates result of XOR operation on input by repeating key
