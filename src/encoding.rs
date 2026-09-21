@@ -78,12 +78,55 @@ pub fn bytes_to_base64(bytes: &[u8]) -> String {
 }
 
 pub fn base64_to_bytes(input: &str) -> Vec<u8> {
-    let mut bits = Vec::new();
-    input.chars().map(|c|)
+    let clean_bytes: Vec<u8> = input
+        .bytes()
+        .filter(|&b| b != b'\n' && b != b'\r' && b != b' ' && b != b'=')
+        .collect();
+
+    let mut result = Vec::with_capacity((clean_bytes.len() * 3) / 4);
+
+    let (chunks, remainder) = clean_bytes.as_chunks::<4>();
+
+    for chunk in chunks {
+        let b0 = base64_char_to_bits(chunk[0]);
+        let b1 = base64_char_to_bits(chunk[1]);
+        let b2 = base64_char_to_bits(chunk[2]);
+        let b3 = base64_char_to_bits(chunk[3]);
+
+        let byte1 = (b0 << 2) | (b1 >> 4);
+        let byte2 = ((b1 & 0x0F) << 4) | (b2 >> 2);
+        let byte3 = ((b2 & 0x03) << 6) | b3;
+
+        result.push(byte1);
+        result.push(byte2);
+        result.push(byte3);
+    }
+
+    if remainder.len() == 2 {
+        let b0 = base64_char_to_bits(remainder[0]);
+        let b1 = base64_char_to_bits(remainder[1]);
+        result.push((b0 << 2) | (b1 >> 4));
+    } else if remainder.len() == 3 {
+        let b0 = base64_char_to_bits(remainder[0]);
+        let b1 = base64_char_to_bits(remainder[1]);
+        let b2 = base64_char_to_bits(remainder[2]);
+        result.push((b0 << 2) | (b1 >> 4));
+        result.push(((b1 & 0x0F) << 4) | (b2 >> 2));
+    }
+
+    result
 }
 
-pub fn base64_char_to_bits(c: char) -> 
-
+pub fn base64_char_to_bits(c: u8) -> u8 {
+    match c {
+        b'A'..=b'Z' => c - b'A',
+        b'a'..=b'z' => c - b'a' + 26,
+        b'0'..=b'9' => c - b'0' + 52,
+        b'+' => 62,
+        b'/' => 63,
+        _ => 0,
+    }
+}
 
 /// Converts hex to base64
 pub fn hex_to_base64(hex: &str) -> Result<String, &str> {

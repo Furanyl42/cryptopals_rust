@@ -9,6 +9,11 @@ use xor::*;
 
 fn main() {
     //println!("Run 'cargo test' !");
+    let file_content = include_str!("/home/nico/cryptopals/tests/6.txt");
+    let bytes = base64_to_bytes(file_content);
+    let (message, key) = repeating_key_crack(&bytes);
+    println!("{}", String::from_utf8_lossy(&message));
+    println!("{}", String::from_utf8_lossy(&key));
 }
 
 pub fn repeating_key_crack(input_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
@@ -33,9 +38,12 @@ pub fn repeating_key_crack(input_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
     let (key_size, _score) = score_list[0];
     let mut key = Vec::with_capacity(key_size);
 
+    let mut column_buffer = Vec::new();
+
     for i in 0..key_size {
-        let transposed_block = input_bytes[i..].iter().copied().step_by(key_size);
-        let (best_byte, _score) = find_best_single_byte_key(transposed_block);
+        column_buffer.clear();
+        column_buffer.extend(input_bytes[i..].iter().copied().step_by(key_size));
+        let (best_byte, _score) = find_best_single_byte_key(&column_buffer);
         key.push(best_byte);
     }
     let message = repeating_key_xor(input_bytes, &key);

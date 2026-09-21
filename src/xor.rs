@@ -44,17 +44,15 @@ pub fn fixed_xor(b1: &[u8], b2: &[u8]) -> Result<Vec<u8>, &'static str> {
 /// Decrypts input message (single-byte XOR'ed)  and finds key based on character frequency using Bhattacharyya coefficient
 pub fn single_byte_crack(input_bytes: &[u8]) -> Cracked {
     let mut best = Cracked::default();
-    //let mut temp_buffer = vec![0u8; input_bytes.len()];
+    let mut temp_buffer = vec![0u8; input_bytes.len()];
     for key in 0..=255u8 {
-        /*for (i, &b) in input_bytes.iter().enumerate() {
+        for (i, &b) in input_bytes.iter().enumerate() {
             temp_buffer[i] = b ^ key;
-        }*/
-        let xored_iter = input_bytes.iter().map(|&b| b ^ key);
-        //let temp_buffer: Vec<u8> = input_bytes.iter().map(|&b| b ^ key).collect();
-        if !is_valid_text(xored_iter.clone()) {
+        }
+        if !is_valid_text(&temp_buffer) {
             continue;
         }
-        let freq = calc_freq(xored_iter);
+        let freq = calc_freq(&temp_buffer);
         let coef = bhattacharyya_coef(&freq, &ENGLISH_FREQ_27);
 
         if coef > best.coef {
@@ -66,21 +64,22 @@ pub fn single_byte_crack(input_bytes: &[u8]) -> Cracked {
     best
 }
 
-pub fn find_best_single_byte_key<I>(input_bytes: I) -> (u8, f64)
-where
-    I: Iterator<Item = u8> + Clone,
-{
+pub fn find_best_single_byte_key(input_bytes: &[u8]) -> (u8, f64) {
     let mut best_key = 0u8;
     let mut best_coef = -1.0;
 
-    for key in 0..=255u8 {
-        let xored_iter = input_bytes.clone().map(|b| b ^ key);
+    let mut temp_buffer = vec![0u8; input_bytes.len()];
 
-        if !is_valid_text(xored_iter.clone()) {
+    for key in 0..=255u8 {
+        for (i, &b) in input_bytes.iter().enumerate() {
+            temp_buffer[i] = b ^ key;
+        }
+
+        if !is_valid_text(&temp_buffer) {
             continue;
         }
 
-        let freq = calc_freq(xored_iter);
+        let freq = calc_freq(&temp_buffer);
         let coef = bhattacharyya_coef(&freq, &ENGLISH_FREQ_27);
         if coef > best_coef {
             best_coef = coef;

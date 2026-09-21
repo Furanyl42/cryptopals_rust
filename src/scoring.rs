@@ -9,26 +9,14 @@ pub const ENGLISH_FREQ_27: [f64; 27] = [
 ];
 
 /// Checks if buffer contains printable ASCII or formatting bytes
-pub fn is_valid_text<I>(bytes: I) -> bool
-where
-    I: IntoIterator<Item = u8>,
-{
-    for b in bytes {
-        if !(b.is_ascii_graphic() || b.is_ascii_whitespace()) {
-            return false;
-        }
-    }
-    true
-    /*bytes
-    .iter()
-    .all(|&b| matches!(b, 32..=126 | b'\n' | b'\r' | b'\t'))*/
+pub fn is_valid_text(bytes: &[u8]) -> bool {
+    bytes
+        .iter()
+        .all(|&b| matches!(b, 32..=126 | b'\n' | b'\r' | b'\t'))
 }
 
 /// Calculates frequency of letters and space
-pub fn calc_freq<I>(bytes: I) -> [f64; 27]
-where
-    I: IntoIterator<Item = u8>,
-{
+pub fn calc_freq(bytes: &[u8]) -> [f64; 27] {
     let mut counts = [0f64; 27];
     let mut total = 0.0;
 
