@@ -77,6 +77,14 @@ pub fn bytes_to_base64(bytes: &[u8]) -> String {
     result
 }
 
+pub fn base64_to_bytes(input: &str) -> Vec<u8> {
+    let mut bits = Vec::new();
+    input.chars().map(|c|)
+}
+
+pub fn base64_char_to_bits(c: char) -> 
+
+
 /// Converts hex to base64
 pub fn hex_to_base64(hex: &str) -> Result<String, &str> {
     let raw_bytes = hex_to_bytes(hex)?;
