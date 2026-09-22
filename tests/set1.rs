@@ -4,6 +4,8 @@ use cryptopals::encoding::*;
 use cryptopals::utils::*;
 use cryptopals::xor::*;
 
+use std::fs;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -62,9 +64,9 @@ mod tests {
                 cracked_best.key = current_cracked.key;
             }
         }
-        let result = String::from_utf8_lossy(&cracked_best.message);
+        let plaintext = String::from_utf8_lossy(&cracked_best.message);
 
-        assert_eq!(result, expected);
+        assert_eq!(plaintext, expected);
     }
 
     #[test]
@@ -75,5 +77,17 @@ mod tests {
 
         let plaintext = bytes_to_hex(&result);
         assert_eq!(plaintext, expected);
+    }
+
+    #[test]
+    fn test_challenge_6_break_repeating_key_xor() {
+        let expected_key = "Terminator X: Bring the noise";
+        let file = "tests/6.txt";
+        let file_content = fs::read_to_string(file).expect("Cant read file");
+        let encrypted_bytes = base64_to_bytes(&file_content);
+        let (_, result_key) = repeating_key_crack(&encrypted_bytes);
+        let plaintext = String::from_utf8_lossy(&result_key);
+
+        assert_eq!(plaintext, expected_key);
     }
 }
