@@ -1,3 +1,4 @@
+pub mod aes;
 pub mod encoding;
 pub mod scoring;
 pub mod utils;

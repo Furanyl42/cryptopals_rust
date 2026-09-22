@@ -1,9 +1,11 @@
 // tests/set1.rs
 
+use cryptopals::aes::*;
 use cryptopals::encoding::*;
 use cryptopals::utils::*;
 use cryptopals::xor::*;
 
+use openssl::symm::{Cipher, decrypt};
 use std::fs;
 
 #[cfg(test)]
@@ -89,5 +91,34 @@ mod tests {
         let plaintext = String::from_utf8_lossy(&result_key);
 
         assert_eq!(plaintext, expected_key);
+    }
+
+    #[test]
+    fn test_challenge_7_aes_in_ecb_mode() {
+        let base64_content = fs::read_to_string("tests/7.txt").expect("Cant read file");
+        let decoded = base64_to_bytes(&base64_content);
+        let key = b"YELLOW SUBMARINE";
+
+        let cipher = Cipher::aes_128_ecb();
+        let Ok(result) = decrypt(cipher, key, None, &decoded) else {
+            panic!("Cant decrypt");
+        };
+        let plaintext = String::from_utf8_lossy(&result);
+        assert!(plaintext.starts_with("I'm back and I'm ringin' the bell"));
+        assert!(plaintext.ends_with("Play that funky music \n"));
+    }
+
+    #[test]
+    fn test_challenge_8_detect_aes_in_ecb_mode() {
+        let file = "tests/8.txt";
+        let hex_decoded = read_file_lines(file);
+        let Some((idx, _)) = hex_decoded
+            .into_iter()
+            .enumerate()
+            .find(|(_, line)| detect_ecb(line))
+        else {
+            panic!("No ECB");
+        };
+        assert_eq!(idx, 132);
     }
 }

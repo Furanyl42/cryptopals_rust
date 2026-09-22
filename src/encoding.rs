@@ -139,7 +139,7 @@ pub fn bytes_to_ascii(bytes: &[u8]) -> String {
     bytes
         .iter()
         .map(|&b| {
-            if is_printable_ascii(b) {
+            if is_printable_ascii(b) || (9..=13).contains(&b) {
                 b as char
             } else {
                 '?'
