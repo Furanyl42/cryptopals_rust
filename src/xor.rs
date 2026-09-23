@@ -64,6 +64,7 @@ pub fn single_byte_crack(input_bytes: &[u8]) -> Cracked {
     best
 }
 
+/// Decrypts input message (signle-byte XOR'ed) by finding the key based on letter frequency
 pub fn find_best_single_byte_key(input_bytes: &[u8]) -> (u8, f64) {
     let mut best_key = 0u8;
     let mut best_coef = -1.0;
@@ -105,6 +106,7 @@ pub fn repeating_key_xor(input: &[u8], key: &[u8]) -> Vec<u8> {
         .collect()
 }
 
+/// Decrypts input message (repeating key XOR) by guessing the key size with the Hamming distance
 pub fn repeating_key_crack(input_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
     let mut score_list: Vec<(usize, f64)> = Vec::new();
 
@@ -139,6 +141,7 @@ pub fn repeating_key_crack(input_bytes: &[u8]) -> (Vec<u8>, Vec<u8>) {
     (message, key)
 }
 
+/// Calculates the Hamming distance (difference in bits) between 2 bytes
 pub fn hamming(b1: &[u8], b2: &[u8]) -> u32 {
     //bits_to_u8(&b1.iter().zip(b2.iter()).map(|(a, b)| a ^ b).collect())
     //let in_bytes: Vec<u8> = b1.iter().zip(b2.iter()).map(|(a, b)| a ^ b).collect();

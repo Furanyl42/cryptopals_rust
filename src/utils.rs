@@ -6,6 +6,7 @@ use crate::encoding::hex_to_bytes;
 use std::fs::File;
 use std::io::Read;
 
+/// Read the hex content of a file line by line (in bytes)
 pub fn read_file_lines(path: &str) -> Vec<Vec<u8>> {
     let mut file = File::open(path).expect("Cant open file");
     let mut content = String::new();
